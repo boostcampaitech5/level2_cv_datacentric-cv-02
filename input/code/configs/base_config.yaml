@@ -1,5 +1,5 @@
 settings:
-  who: sy
+  who: baseline
   seed: 42
 training:
   data_dir: ../data/medical
