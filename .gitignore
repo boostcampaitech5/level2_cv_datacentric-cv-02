@@ -1,0 +1,20 @@
+# repo에 push하지 않아도 괜찮은, 불필요한 디렉토리들
+input/data
+input/code/__pycache__
+input/code/.empty
+input/code/predictions
+input/code/pth
+input/code/trained_models
+input/code/viz_results
+input/code/wandb
+
+# 절대로 repo에 push되면 안 될 코드들
+input/code/model.py
+input/code/loss.py
+input/code/detect.py
+input/code/east_dataset.py
+
+# 추후 코드를 수정할 수 있지만, 현재는 수정한 게 없어 push하지 않는 코드들
+input/code/dataset.py
+input/code/deteval.py
+input/code/inference.py
