@@ -22,6 +22,11 @@ from utils import seed_everything, load_config
 
 
 def parse_args():
+    """training, evaluation에 필요한 yaml 파일의 경로를 가져오기 위해 사용합니다.
+
+    Returns:
+        _type_: 사용자가 입력한 arguments를 반환합니다.
+    """
     parser = ArgumentParser()
 
     parser.add_argument('--config_path', type=str, default='./configs/base_config.yaml', help='yaml files to train ocr models (default: ./configs/base_config.yaml)')
@@ -31,13 +36,28 @@ def parse_args():
     return args
 
 
-def do_training(num_seed, data_dir,
+def do_training(user_name, seed, data_dir,
                 model_dir, image_size, input_size,
                 num_workers, batch_size, learning_rate,
                 max_epoch, save_interval, ignore_tags):
+    """모델을 학습시키는 함수입니다.
 
+    Args:
+        user_name (_type_): 학습시킨 모델의 weights를 저장할 때 사용되는 사용자 이름입니다.
+        seed (_type_): 재현 가능성을 위한 seed setting에 사용되는 값입니다.
+        data_dir (_type_): 데이터가 저장되어 있는 디렉토리 경로입니다.
+        model_dir (_type_): 학습시킨 모델의 weights를 저장할 디렉토리 경로입니다.
+        image_size (_type_): 원본 이미지를 resize할 때 사용하는 값입니다.
+        input_size (_type_): Random Crop을 적용할 때 사용하는 값입니다.
+        num_workers (_type_): 데이터를 불러올 때 사용할 CPU 코어 개수입니다.
+        batch_size (_type_): training batch size입니다.
+        learning_rate (_type_): optimizer의 learning rate입니다.
+        max_epoch (_type_): 최대 epoch을 의미합니다.
+        save_interval (_type_): 특정 간격으로 model weights를 저장합니다.
+        ignore_tags (_type_): 데이터에 존재하는 tag를 보고, 어떤 tag를 무시할 지 결정합니다.
+    """
     # seed 세팅
-    seed_everything(num_seed)
+    seed_everything(seed)
 
     # dataset 생성
     dataset = SceneTextDataset(
@@ -112,12 +132,21 @@ def do_training(num_seed, data_dir,
             if not osp.exists(model_dir):
                 os.makedirs(model_dir)
 
-            ckpt_fpath = osp.join(model_dir, 'latest.pth')
+            model_name = f'{user_name}_{epoch}_{input_size}.pth' # save_interval 구간일 때, 현재 에폭을 기준으로 이름을 지정합니다.
+            ckpt_fpath = osp.join(model_dir, model_name)
             torch.save(model.state_dict(), ckpt_fpath)
 
 
-def main(settings, training, inference):
-    do_training(settings['seed'], training['data_dir'],
+def main(settings, training, evaluation):
+    """do_training을 호출하는 함수입니다. 코드의 가독성을 높이기 위해 사용합니다.
+
+    Args:
+        settings (_type_): 실험 환경을 setting하기 위한 값들이 담겨있는 dictionary입니다. 사용자(who), seed 값이 담겨있습니다.
+        training (_type_): 학습 시 사용할 값들이 담겨있는 dictionary입니다.
+        evaluation (_type_): 평가 시 사용할 값들이 담겨있는 dictionary입니다.
+                             현재 버전(23.05.25)으로는 train/val split이 안 되어 있기 때문에, 아무 값도 담겨있지 않습니다.
+    """
+    do_training(settings['who'], settings['seed'], training['data_dir'],
                 training['model_dir'], training['image_size'], training['input_size'],
                 training['num_workers'], training['batch_size'], training['learning_rate'],
                 training['max_epoch'], training['save_interval'], training['ignore_tags'])
@@ -139,7 +168,8 @@ if __name__ == '__main__':
     wandb.config.update(cfgs)
 
     # 불러온 yaml 파일을 사용하기 편리하도록 분리하기
-    settings, training, inference = cfgs['settings'], cfgs['training'], cfgs['inference']
+    settings = cfgs['settings']
+    training, evaluation, _ = cfgs['training'], cfgs['evaluation'], cfgs['inference']
 
     # wandb 실험 이름 설정
     run_name = f"{settings['who']}_{training['max_epoch']}_{training['input_size']}" # e.g., sy_150_1024 (계속 같은 모델을 사용하니 모델 이름은 제외했어요)
@@ -150,5 +180,5 @@ if __name__ == '__main__':
         raise ValueError('`input_size` must be a multiple of 32')
 
     # 실험 시작!
-    main(settings, training, inference)
+    main(settings, training, evaluation)
     

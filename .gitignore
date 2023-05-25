@@ -7,6 +7,7 @@ input/code/pth
 input/code/trained_models
 input/code/viz_results
 input/code/wandb
+input/code/pths
 
 # 절대로 repo에 push되면 안 될 코드들
 input/code/model.py
