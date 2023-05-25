@@ -1,0 +1,15 @@
+settings:
+  who: sy
+  seed: 42
+training:
+  data_dir: ../data/medical
+  model_dir: ./trained_models
+  num_workers: 8
+  image_size: 2048
+  input_size: 1024
+  batch_size: 8
+  learning_rate: 0.001
+  max_epoch: 300
+  save_interval: 5
+  ignore_tags: ['masked', 'excluded-region', 'maintable', 'stamp']
+inference:
