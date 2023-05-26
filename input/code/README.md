@@ -56,6 +56,14 @@ training: # training에 사용되는 값들입니다. 제가 추가한 건 없�
 evaluation: # 추후 validation split을 했을 때, evaulation을 위한 hyper-parameters를 적을 생각입니다.
 inference: # inference.py를 실행할 때 사용할 값들을 적을 생각입니다.
 ```
+5. `.gitignore` 파일에 대해 간단히 설명드리겠습니다.
+- '수정 및 push 가능'이라고 적힌 코드들 중에서 아직 수정이 되지 않아 push하지 않은 코드들이 있습니다.
+- `dataset.py`, `deteval.py`, `inference.py`의 경우 아직은 수정한 사항이 없어 push하지 않았습니다.
+- 따라서 `.gitignore` 파일에 해당 모듈들이 추가되어있는 상태입니다. `.gitignore` 파일에 추가되면,<br>
+`git status`로 모듈들의 버전을 체크할 때 무시됩니다.
+- 해당 모듈들을 수정한 뒤 push하고 싶으시다면, `.gitignore`에 있는 모듈의 이름을 지운 뒤 push하시면 됩니다.<br>
+(말로 설명해서 복잡해보일 수도 있는데, 해보면 되게 간단합니다.)
+- 이후 **settings 3번**의 복사해야 할 파일에서, 해당 모듈을 지워주세요. 이는 불필요한 과정을 없애기 위함입니다.
 ## Training
 - 세팅을 완료하고, yaml 파일을 생성하셨다면 training이 가능합니다. Training 방법은 간단합니다.
 - 터미널에 `python train.py --config_path ./configs/your_folder/your_yaml_file.yaml` 을 입력하고, 실행하시면 됩니다.
