@@ -18,7 +18,7 @@ from east_dataset import EASTDataset
 from dataset import SceneTextDataset
 from model import EAST
 
-from utils import seed_everything, load_config
+from utils import seed_everything, load_config, get_save_folder_name
 
 
 def parse_args():
@@ -36,17 +36,16 @@ def parse_args():
     return args
 
 
-def do_training(user_name, seed, data_dir,
+def do_training(seed, data_dir,
                 model_dir, image_size, input_size,
                 num_workers, batch_size, learning_rate,
                 max_epoch, save_interval, ignore_tags):
     """모델을 학습시키는 함수입니다.
 
     Args:
-        user_name (_type_): 학습시킨 모델의 weights를 저장할 때 사용되는 사용자 이름입니다.
         seed (_type_): 재현 가능성을 위한 seed setting에 사용되는 값입니다.
         data_dir (_type_): 데이터가 저장되어 있는 디렉토리 경로입니다.
-        model_dir (_type_): 학습시킨 모델의 weights를 저장할 디렉토리 경로입니다.
+        model_dir (_type_): 학습시킨 모델의 weights를 저장할 디렉토리 경로입니다. ex) ./trained_models/2023-05-26/base_config/
         image_size (_type_): 원본 이미지를 resize할 때 사용하는 값입니다.
         input_size (_type_): Random Crop을 적용할 때 사용하는 값입니다.
         num_workers (_type_): 데이터를 불러올 때 사용할 CPU 코어 개수입니다.
@@ -128,26 +127,32 @@ def do_training(user_name, seed, data_dir,
 
         # TODO: train/val split과 evaluation 코드 구현하기
 
+
+        # save model
         if (epoch + 1) % save_interval == 0:
             if not osp.exists(model_dir):
                 os.makedirs(model_dir)
 
-            model_name = f'{user_name}_{epoch}_{input_size}.pth' # save_interval 구간일 때, 현재 에폭을 기준으로 이름을 지정합니다.
+            curr_epoch, total_epoch = str(epoch+1).zfill(4), str(max_epoch).zfill(4)
+            model_name = '[' + curr_epoch + '|' + total_epoch + '].pth' # save_interval 구간일 때, 현재 에폭을 기준으로 이름을 지정합니다. e.g., [0005|0150].pth
             ckpt_fpath = osp.join(model_dir, model_name)
             torch.save(model.state_dict(), ckpt_fpath)
 
 
-def main(settings, training, evaluation):
+def main(config_path, settings, training, evaluation):
     """do_training을 호출하는 함수입니다. 코드의 가독성을 높이기 위해 사용합니다.
 
     Args:
+        config_path (_type_): 학습한 모델의 weights를 저장하는 폴더의 이름을 설정하기 위해, configs 폴더 아래에 있는 yaml 파일의 이름을 사용합니다.
         settings (_type_): 실험 환경을 setting하기 위한 값들이 담겨있는 dictionary입니다. 사용자(who), seed 값이 담겨있습니다.
         training (_type_): 학습 시 사용할 값들이 담겨있는 dictionary입니다.
         evaluation (_type_): 평가 시 사용할 값들이 담겨있는 dictionary입니다.
                              현재 버전(23.05.25)으로는 train/val split이 안 되어 있기 때문에, 아무 값도 담겨있지 않습니다.
     """
-    do_training(settings['who'], settings['seed'], training['data_dir'],
-                training['model_dir'], training['image_size'], training['input_size'],
+    model_dir = osp.join(training['model_dir'], get_save_folder_name(config_path))
+    
+    do_training(settings['seed'], training['data_dir'],
+                model_dir, training['image_size'], training['input_size'],
                 training['num_workers'], training['batch_size'], training['learning_rate'],
                 training['max_epoch'], training['save_interval'], training['ignore_tags'])
 
@@ -180,5 +185,5 @@ if __name__ == '__main__':
         raise ValueError('`input_size` must be a multiple of 32')
 
     # 실험 시작!
-    main(settings, training, evaluation)
+    main(args.config_path, settings, training, evaluation)
     

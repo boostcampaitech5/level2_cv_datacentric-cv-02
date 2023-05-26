@@ -3,6 +3,7 @@ import numpy as np
 
 import yaml
 from datetime import datetime
+import os.path as osp
 import random
 
 def seed_everything(seed:int=42):
@@ -20,17 +21,21 @@ def seed_everything(seed:int=42):
     random.seed(seed)
 
 
-def get_save_folder_name() -> str:
-    """파일을 날짜별로 폴더에 저장하고 싶을 때, 폴더명을 만들어주는 함수입니다.
+def get_save_folder_name(yaml_path) -> str:
+    """파일을 '날짜/yaml 파일의 이름/' 방식으로 폴더에 저장할 때, 폴더명을 만들어주는 함수입니다.
+
+    Args:
+        yaml_path (_type_): yaml의 경로입니다. e.g., ./configs/sy/01_sy_300_1024.yaml
 
     Returns:
-        str: "2023-05-25"와 같이 폴더명으로 사용할 문자열 반환
+        str: "2023-05-25/01_sy_300_1024"와 같이 폴더명으로 사용할 문자열 반환
     """
 
     today = datetime.now()
-    save_folder_name = f"{today.year}-{today.month}-{today.day}"
+    date_folder = f"{today.year}-{today.month}-{today.day}"
+    yaml_folder = yaml_path.split('/')[-1].split('.')[0]
 
-    return save_folder_name
+    return osp.join(date_folder, yaml_folder)
 
 
 def load_config(config_file):
@@ -43,3 +48,10 @@ def load_config(config_file):
         config = yaml.safe_load(file)
 
     return config
+
+
+# Test Code
+if __name__ == "__main__":
+    # get_save_folder_name test
+    config_path = "./configs/sy/01_sy_300_1024.yaml"
+    print(get_save_folder_name(config_path))
