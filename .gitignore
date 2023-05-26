@@ -9,6 +9,9 @@ input/code/viz_results
 input/code/wandb
 input/code/pths
 
+# repo에 push하지 않아도 괜찮은, 불필요한 파일 및 코드들
+input/code/*.out
+
 # 절대로 repo에 push되면 안 될 코드들
 input/code/model.py
 input/code/loss.py
