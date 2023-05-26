@@ -2,7 +2,7 @@
 ### Settings
 1. Repository clone `git clone ~`
 2. 기본으로 제공되는 data 폴더를 `input/` 아래로 복사합니다.
-3. `dataset.py`, `detect.py`, `deteval.py`, `east_dataset.py`, `inference.py`, `loss.py`, `model.py`를 input/code 아래로 복사합니다.
+3. `./pths/`, `dataset.py`, `detect.py`, `deteval.py`, `east_dataset.py`, `inference.py`, `loss.py`, `model.py`를 input/code 아래로 복사합니다.
 ```
 # 3번까지 수행했을 때 디렉토리 구조
 
@@ -15,6 +15,8 @@ level2_cv_datacentric-cv-02
 |   │   |   ├── base_config.yaml : 제공받은 코드의 초기 세팅들을 모아놓은 yaml 파일
 |   │   |   └── sy : 개인 yaml 폴더. 본인 이름의 이니셜로 폴더를 세팅하시면 됩니다.
 |   │   |       └── 01_sy_300_1024.yaml : 실험에 사용할 yaml 파일
+|   │   |
+|   │   ├── pths : 학습에 필요한 pretrained weights입니다. 기본 코드에 있는 걸 그대로 가져오시면 됩니다.
 |   │   |
 |   │   ├── detect.py         (slack에 공지된 bug 말고는 수정 및 push **불가능**)
 |   │   ├── east_dataset.py   (수정 및 push **불가능**)
@@ -61,6 +63,18 @@ inference: # inference.py를 실행할 때 사용할 값들을 적을 생각입�
 현재 Epoch, Total Loss, CLS Loss, Angle Loss, IoU Loss를 확인하실 수 있습니다.
 - Epoch을 기록하는 이유는, WandB의 그래프 x축은 기본 step 수로 세팅되어 있습니다. 이를 epoch 별로 확인하기 위해 기록합니다.
 WandB 상의 그래프 x축을 변경하는 방법은, 그래프 우상단에 있는 edit 아이콘을 누르시고 x축을 epoch으로 변경해주시면 됩니다.
+- - -
+- 학습한 모델은 `./trained_models` 아래에 저장됩니다. 저장 주기는 yaml 파일의 `save_interval`에 따라 결정됩니다.<br>
+저장되는 형식은 다음과 같습니다.
+```
+trained_models
+└── 2023-05-26 # 날짜 폴더가 먼저 생성됩니다
+         └── 01_sy_300_1024 # configs 폴더에 작성한 yaml 파일의 이름으로 폴더가 생성됩니다.
+                 ├── [0005|0300].pth  # [현재 에폭|총 에폭].pth 형식으로, save_interval 마다 저장됩니다.
+                 ├── [0010|0300].pth
+                 ├── [0015|0300].pth
+                 └── ...
+```
 ## Inference
 - 업데이트 예정입니다.
 ## Visualization
