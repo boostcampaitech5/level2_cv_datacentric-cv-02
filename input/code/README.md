@@ -28,7 +28,7 @@ level2_cv_datacentric-cv-02
 |   │   ├── utils.py
 |   │   └── visualization.py
 |   │
-│   └── data : 데이터들을 모아두는 폴더
+│   └── data : 데이터들을 모아두는 폴더 (push **불가능**)
 │
 ├── .gitignore : commit하지 않을 폴더, 파일들을 기록해두는 곳. 상세 설명은 아래에서 참고해주세요!
 └── README.md
