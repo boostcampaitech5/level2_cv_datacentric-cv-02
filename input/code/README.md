@@ -2,7 +2,7 @@
 ### Settings
 1. Repository clone `git clone ~`
 2. 기본으로 제공되는 data 폴더를 `input/` 아래로 복사합니다.
-3. `./pths/`, `dataset.py`, `detect.py`, `deteval.py`, `east_dataset.py`, `inference.py`, `loss.py`, `model.py`를 input/code 아래로 복사합니다.
+3. `./pths/`, `dataset.py`, `detect.py`, `deteval.py`, `east_dataset.py`, `inference.py`, `loss.py`, `model.py`를 `input/code` 아래로 복사합니다.
 ```
 # 3번까지 수행했을 때 디렉토리 구조
 
