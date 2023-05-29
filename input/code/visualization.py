@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import cv2
 
 from PIL import Image
-import glob, json, os
+import json, os
+import os.path as osp
 from pathlib import Path
 from collections import Counter
 from argparse import ArgumentParser
@@ -29,7 +30,7 @@ def save_viz_results(test_dir: str, json_data: str, save_dir: str) -> None:
 
     Args:
         test_dir (str): test data가 저장되어 있는 폴더의 경로입니다.
-        json_data (str): 불러온 json 파일의 데이터가 할당된 변수입니다.
+        json_data (str): 불러온 json 파일의 데이터입니다.
         save_dir (str): 시각화한 결과를 저장할 폴더의 경로입니다.
     """
     # json_data에 존재하는 이미지 정보들만 불러오기
@@ -38,7 +39,7 @@ def save_viz_results(test_dir: str, json_data: str, save_dir: str) -> None:
 
     # 이미지 불러오기
     for file_name in tqdm(file_names, desc='saving viz results...'):
-        file_path = os.path.join(test_dir, file_name)
+        file_path = osp.join(test_dir, file_name)
         image = cv2.imread(file_path)
 
         # file_name에 대한 points 가져오기
@@ -47,13 +48,13 @@ def save_viz_results(test_dir: str, json_data: str, save_dir: str) -> None:
         
             # 이미지 상에 points를 그리기
             points = np.array(points, dtype=np.int32)
-            cv2.polylines(image, [points], isClosed=True, color=(0, 255, 0), thickness=2)
+            cv2.polylines(image, [points], isClosed=True, color=(0, 0, 255), thickness=1)
 
         # 이미지 저장하기
-        if not os.path.exists(save_dir):
+        if not osp.exists(save_dir):
             os.makedirs(save_dir)
 
-        save_path = os.path.join(save_dir, file_name)
+        save_path = osp.join(save_dir, file_name)
         cv2.imwrite(save_path, image)
 
 
