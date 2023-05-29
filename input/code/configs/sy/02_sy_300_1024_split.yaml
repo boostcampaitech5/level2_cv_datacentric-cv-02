@@ -1,5 +1,5 @@
 settings:
-  who: baseline
+  who: sy
   seed: 42
   data_dir: ../data/medical
   model_dir: ./trained_models
@@ -12,7 +12,7 @@ train:
   batch_size: 8
   learning_rate: 0.001
   max_epoch: 150
-  save_interval: 5
+  save_interval: 10
 valid:
   num_workers: 4
   input_size: 2048
