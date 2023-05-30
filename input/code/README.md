@@ -1,4 +1,4 @@
-## Baseline 코드 사용법 (2023-05-26)
+## Baseline 코드 사용법 (2023-05-30 update)
 ### Settings
 1. Repository clone `git clone ~`
 2. 기본으로 제공되는 data 폴더를 `input/` 아래로 복사합니다.
@@ -39,12 +39,14 @@ level2_cv_datacentric-cv-02
 예를 들자면, `configs/sy/01_sy_300_1024.yaml`와 같이 만들어주시면 됩니다.<br>
 yaml 파일의 구조는 다음과 같습니다.
 ```yaml
+# (2023-05-30 updated)
 settings: # 실험을 위해 기본적으로 세팅하는 값들입니다.
   who: baseline # who에는 지난 번 대회처럼 이니셜을 넣어주시면, wandb와 모델을 저장할 때 이름이 들어갈 겁니다.
   seed: 42 # 시드입니다.
-training: # training에 사용되는 값들입니다. 제가 추가한 건 없고, 원래 있던 것들을 yaml 파일로 옮기기만 했습니다.
   data_dir: ../data/medical
   model_dir: ./trained_models
+  ignore_tags: ['masked', 'excluded-region', 'maintable', 'stamp']
+train: # training에 사용되는 값들입니다. 제가 추가한 건 없고, 원래 있던 것들을 yaml 파일로 옮기기만 했습니다.
   num_workers: 8
   image_size: 2048
   input_size: 1024
@@ -52,9 +54,13 @@ training: # training에 사용되는 값들입니다. 제가 추가한 건 없�
   learning_rate: 0.001
   max_epoch: 150
   save_interval: 5
-  ignore_tags: ['masked', 'excluded-region', 'maintable', 'stamp']
-evaluation: # 추후 validation split을 했을 때, evaulation을 위한 hyper-parameters를 적을 생각입니다.
-inference: # inference.py를 실행할 때 사용할 값들을 적을 생각입니다.
+valid: # DetEval을 활용한 evaluation 과정에 필요한 값들입니다. Test와 동일한 환경으로 setting 했습니다.
+  num_workers: 4
+  input_size: 2048
+  batch_size: 4
+test: # inference.py를 실행할 때 사용할 값들입니다.
+  input_size: 2048
+  batch_size: 5
 ```
 5. `.gitignore` 파일에 대해 간단히 설명드리겠습니다.
 - '수정 및 push 가능'이라고 적힌 코드들 중에서 아직 수정이 되지 않아 push하지 않은 코드들이 있습니다.
@@ -68,21 +74,20 @@ inference: # inference.py를 실행할 때 사용할 값들을 적을 생각입�
 - 세팅을 완료하고, yaml 파일을 생성하셨다면 training이 가능합니다. Training 방법은 간단합니다.
 - 터미널에 `python train.py --config_path ./configs/your_folder/your_yaml_file.yaml` 을 입력하고, 실행하시면 됩니다.
 - 학습 과정은 "Optical Character Recognition'이라는 프로젝트 이름으로 WandB에 기록되며,<br>
-현재 Epoch, Total Loss, CLS Loss, Angle Loss, IoU Loss를 확인하실 수 있습니다.
+현재 Epoch, Total Loss, CLS Loss, Angle Loss, IoU Loss 및 validation set에 대한 f1 score, recall, precision을 확인하실 수 있습니다.
 - Epoch을 기록하는 이유는, WandB의 그래프 x축은 기본 step 수로 세팅되어 있습니다. 이를 epoch 별로 확인하기 위해 기록합니다.
 WandB 상의 그래프 x축을 변경하는 방법은, 그래프 우상단에 있는 edit 아이콘을 누르시고 x축을 epoch으로 변경해주시면 됩니다.
 - - -
 - 학습한 모델은 `./trained_models` 아래에 저장됩니다. 저장 주기는 yaml 파일의 `save_interval`에 따라 결정됩니다.<br>
 저장되는 형식은 다음과 같습니다.
 ```
+# (2023-05-30 updated)
 trained_models
-└── 2023-05-26 # 날짜 폴더가 먼저 생성됩니다
-         └── 01_sy_300_1024 # configs 폴더에 작성한 yaml 파일의 이름으로 폴더가 생성됩니다.
-                 ├── [0005|0300].pth  # [현재 에폭|총 에폭].pth 형식으로, save_interval 마다 저장됩니다.
-                 ├── [0010|0300].pth
-                 ├── [0015|0300].pth
-                 └── ...
+└── 01_sy_300_1024.pth # configs 폴더에 작성한 yaml 파일의 이름으로 weight file이 저장됩니다.
 ```
+- - -
+- DetEval metrics를 계산하는 기능이 `train.py`의 training loop에 추가되었습니다.
+- [Pull requests #6](https://github.com/boostcampaitech5/level2_cv_datacentric-cv-02/pull/6)을 참조하시면 DetEval metrics를 계산하는 흐름을 간략히 파악하실 수 있습니다.
 ## Inference
 - 업데이트 예정입니다.
 ## Visualization
