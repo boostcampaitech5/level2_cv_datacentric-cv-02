@@ -21,4 +21,3 @@ input/code/east_dataset.py
 # 추후 코드를 수정할 수 있지만, 현재는 수정한 게 없어 push하지 않는 코드들
 input/code/dataset.py
 input/code/deteval.py
-input/code/inference.py
