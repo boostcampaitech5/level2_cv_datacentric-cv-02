@@ -1,8 +1,8 @@
-## Baseline 코드 사용법 (2023-05-30 update)
+## Baseline 코드 사용법 (2023-06-01 update)
 ### Settings
 1. Repository clone `git clone ~`
 2. 기본으로 제공되는 data 폴더를 `input/` 아래로 복사합니다.
-3. `./pths/`, `dataset.py`, `detect.py`, `deteval.py`, `east_dataset.py`, `inference.py`, `loss.py`, `model.py`를 `input/code` 아래로 복사합니다.
+3. `./pths/`, `dataset.py`, `detect.py`, `deteval.py`, `east_dataset.py`, `loss.py`, `model.py`를 `input/code` 아래로 복사합니다.
 ```
 # 3번까지 수행했을 때 디렉토리 구조
 
@@ -64,7 +64,7 @@ test: # inference.py를 실행할 때 사용할 값들입니다.
 ```
 5. `.gitignore` 파일에 대해 간단히 설명드리겠습니다.
 - '수정 및 push 가능'이라고 적힌 코드들 중에서 아직 수정이 되지 않아 push하지 않은 코드들이 있습니다.
-- `dataset.py`, `deteval.py`, `inference.py`의 경우 아직은 수정한 사항이 없어 push하지 않았습니다.
+- `dataset.py`, `deteval.py`의 경우 아직은 수정한 사항이 없어 push하지 않았습니다.
 - 따라서 `.gitignore` 파일에 해당 모듈들이 추가되어있는 상태입니다. `.gitignore` 파일에 추가되면,<br>
 `git status`로 모듈들의 버전을 체크할 때 무시됩니다.
 - 해당 모듈들을 수정한 뒤 push하고 싶으시다면, `.gitignore`에 있는 모듈의 이름을 지운 뒤 push하시면 됩니다.<br>
@@ -88,10 +88,34 @@ trained_models
 - - -
 - DetEval metrics를 계산하는 기능이 `train.py`의 training loop에 추가되었습니다.
 - [Pull requests #6](https://github.com/boostcampaitech5/level2_cv_datacentric-cv-02/pull/6)을 참조하시면 DetEval metrics를 계산하는 흐름을 간략히 파악하실 수 있습니다.
+- 학습이 불충분한 경우 모델이 예측한 bbox의 개수가 너무 많아, deteval metric 계산에 소요되는 시간이 매우 깁니다. 따라서 20 epoch 이후부터 `save_interval` 주기로 평가하도록 코드가 작성되어 있습니다.
 ## Inference
-- 업데이트 예정입니다.
+- 학습이 완료된 모델과, test data를 기반으로 inference가 가능합니다. 사용법은 다음과 같습니다.
+```bash
+# Example
+python inference.py --config_path ./configs/base_config.yaml --weight_path ./trained_models/base_config.pth
+```
+- 실행 결과는 다음과 같이 저장됩니다.
+```
+predictions
+├── base_config.csv
+└── base_config.json
+```
 ## Visualization
 - Test 이미지 100장에 대해 모델이 예측한 값을 시각화하고, `./viz_results`라는 폴더를 생성한 뒤 하위 파일들로 저장하는 코드입니다.
-- 보다 깔끔한 인터페이스를 만들기 위해 업데이트할 예정입니다.
+- 사용 방법은 다음과 같습니다.
+```bash
+# Example
+python visualization.py --json_name base_config.json
+```
+- 실행 결과는 다음과 같이 저장됩니다.
+```
+viz_results
+└── base_config
+        ├── img1.jpg
+        ├── img2.jpg
+        ├── ...
+        └── img100.jpg
+```
 ## Others
 - 코드를 사용하시다가 추가하고 싶은 기능이 있으시다면 PR을, 버그가 있다면 issue를 활용해주세요! 감사합니다 🙇
