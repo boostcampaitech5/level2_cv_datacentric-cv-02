@@ -70,5 +70,6 @@ if __name__ == '__main__':
         json_data = json.load(f)
 
     # 3. test 이미지에 예측 결과를 시각화하고, 저장하기
-    save_viz_results(test_dir, json_data, args.save_dir)
+    save_dir = osp.join(args.save_dir, args.json_name.split('.')[0])
+    save_viz_results(test_dir, json_data, save_dir)
     

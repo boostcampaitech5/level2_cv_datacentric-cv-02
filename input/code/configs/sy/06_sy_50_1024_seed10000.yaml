@@ -1,0 +1,22 @@
+settings:
+  who: sy
+  seed: 10000
+  data_dir: ../data/medical
+  model_dir: ./trained_models
+  output_dir: ./predictions
+  ignore_tags: ['masked', 'excluded-region', 'maintable', 'stamp']
+train:
+  num_workers: 8
+  image_size: 2048
+  input_size: 1024
+  batch_size: 8
+  learning_rate: 0.001
+  max_epoch: 50
+  save_interval: 10
+valid:
+  num_workers: 4
+  input_size: 2048
+  batch_size: 4
+test:
+  input_size: 2048
+  batch_size: 5
