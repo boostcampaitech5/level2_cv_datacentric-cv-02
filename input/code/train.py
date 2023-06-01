@@ -113,62 +113,63 @@ def do_training(config_path, settings, train, valid):
         })
 
         # validation
-        if (epoch + 1) % train['save_interval'] == 0:
-            print('Calculating DetEval Metrics on Validation Datasets...')
-            ufo_result_valid = do_inference(model=model, ckpt_fpath=None,
-                                            data_dir=settings['data_dir'],
-                                            input_size=valid['input_size'],
-                                            batch_size=valid['batch_size'],
-                                            split='val')
-            ufo_result_valid = ufo_result_valid['images']
-            
-            # validation을 하기 위한 형태로 predictions, gts를 변환
-            gt_bboxes_dict, pred_bboxes_dict = dict(), dict()
-            for image_name in ufo_result_valid.keys():
-                gt_bboxes_dict[image_name], pred_bboxes_dict[image_name] = [], []
-
-                # gt json load
-                with open(osp.join(settings['data_dir'], 'ufo/val.json'), 'r') as f:
-                    gt_anno = json.load(f)
+        if (epoch + 1) >= 20:
+            if (epoch + 1) % train['save_interval'] == 0:
+                print('Calculating DetEval Metrics on Validation Datasets...')
+                ufo_result_valid = do_inference(model=model, ckpt_fpath=None,
+                                                data_dir=settings['data_dir'],
+                                                input_size=valid['input_size'],
+                                                batch_size=valid['batch_size'],
+                                                split='val')
+                ufo_result_valid = ufo_result_valid['images']
                 
-                # convert format of ground truths to use deteval.py
-                gt_anno = gt_anno['images']
-                gt_words = gt_anno[image_name]['words'].values()
-                for gt_word in gt_words:
-                    gt_points = gt_word['points']
-                    gt_bboxes_dict[image_name].append(gt_points)
-                
-                # convert format of predictions to use deteval.py
-                pred_words = ufo_result_valid[image_name]['words'].values()
-                for pred_word in pred_words:
-                    pred_points = pred_word['points']
-                    pred_bboxes_dict[image_name].append(pred_points)
+                # validation을 하기 위한 형태로 predictions, gts를 변환
+                gt_bboxes_dict, pred_bboxes_dict = dict(), dict()
+                for image_name in ufo_result_valid.keys():
+                    gt_bboxes_dict[image_name], pred_bboxes_dict[image_name] = [], []
 
-            # validation data에 대한 deteval 계산
-            results = calc_deteval_metrics(pred_bboxes_dict, gt_bboxes_dict, verbose=True)
-            precision, recall, hmean = results['total'].values()
-            print('Done!')
+                    # gt json load
+                    with open(osp.join(settings['data_dir'], 'ufo/val.json'), 'r') as f:
+                        gt_anno = json.load(f)
+                    
+                    # convert format of ground truths to use deteval.py
+                    gt_anno = gt_anno['images']
+                    gt_words = gt_anno[image_name]['words'].values()
+                    for gt_word in gt_words:
+                        gt_points = gt_word['points']
+                        gt_bboxes_dict[image_name].append(gt_points)
+                    
+                    # convert format of predictions to use deteval.py
+                    pred_words = ufo_result_valid[image_name]['words'].values()
+                    for pred_word in pred_words:
+                        pred_points = pred_word['points']
+                        pred_bboxes_dict[image_name].append(pred_points)
 
-            print('-'*52)
-            print('F1 Score: {:.4f} | Precision: {:.4f} | Recall: {:.4f}'.format(
-                hmean, precision, recall))
-            print('-'*52)
-            
-            # wandb logging - validation
-            wandb.log({
-                "Epoch": epoch + 1,
-                "F1 Score": hmean,
-                "Precision": precision,
-                "Recall": recall,
-            })
-
-            # saveF1 score가 갱신되는 경우 모델을 새로 저장
-            if hmean > best_hmean:
-                print(f'update best model... before: {best_hmean}, after: {hmean}')
-                ckpt_fpath = osp.join(settings['model_dir'], get_save_folder_name(config_path)) + '.pth'
-                torch.save(model.state_dict(), ckpt_fpath)
-                best_hmean = hmean
+                # validation data에 대한 deteval 계산
+                results = calc_deteval_metrics(pred_bboxes_dict, gt_bboxes_dict, verbose=True)
+                precision, recall, hmean = results['total'].values()
                 print('Done!')
+
+                print('-'*52)
+                print('F1 Score: {:.4f} | Precision: {:.4f} | Recall: {:.4f}'.format(
+                    hmean, precision, recall))
+                print('-'*52)
+                
+                # wandb logging - validation
+                wandb.log({
+                    "Epoch": epoch + 1,
+                    "F1 Score": hmean,
+                    "Precision": precision,
+                    "Recall": recall,
+                })
+
+                # saveF1 score가 갱신되는 경우 모델을 새로 저장
+                if hmean > best_hmean:
+                    print(f'update best model... before: {best_hmean}, after: {hmean}')
+                    ckpt_fpath = osp.join(settings['model_dir'], get_save_folder_name(config_path)) + '.pth'
+                    torch.save(model.state_dict(), ckpt_fpath)
+                    best_hmean = hmean
+                    print('Done!')
 
 
 if __name__ == '__main__':
@@ -191,8 +192,7 @@ if __name__ == '__main__':
     train, valid, _ = cfgs['train'], cfgs['valid'], cfgs['test']
 
     # wandb 실험 이름 설정
-    run_name = f"{settings['who']}_{train['max_epoch']}_{train['input_size']}" # e.g., sy_150_1024 (계속 같은 모델을 사용하니 모델 이름은 제외했어요)
-    wandb.run.name = run_name
+    wandb.run.name = get_save_folder_name(args.config_path)
 
     # 예외 처리
     if train['input_size'] % 32 != 0:
